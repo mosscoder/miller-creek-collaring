@@ -6,4 +6,4 @@
 - data/raster/miller_terrain_follow.tif: ellipsoidal DSM in EPSG:4326 for DJI Pilot 2 terrain following
 
 ## Mission Map:
-![Mission Map](../planning/miller_mission_map.png)
+![Mission Map](planning/miller_mission_map.png)
