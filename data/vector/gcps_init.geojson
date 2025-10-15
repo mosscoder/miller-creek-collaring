@@ -1,0 +1,13 @@
+{
+"type": "FeatureCollection",
+"name": "gcps_init",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { }, "geometry": { "type": "Point", "coordinates": [ -113.943940053942057, 46.752972328299215 ] } },
+{ "type": "Feature", "properties": { }, "geometry": { "type": "Point", "coordinates": [ -113.942859788982759, 46.752097410570514 ] } },
+{ "type": "Feature", "properties": { }, "geometry": { "type": "Point", "coordinates": [ -113.943320087325162, 46.751603827776115 ] } },
+{ "type": "Feature", "properties": { }, "geometry": { "type": "Point", "coordinates": [ -113.945077695205569, 46.753524441276312 ] } },
+{ "type": "Feature", "properties": { }, "geometry": { "type": "Point", "coordinates": [ -113.943348425035822, 46.755867331701907 ] } },
+{ "type": "Feature", "properties": { }, "geometry": { "type": "Point", "coordinates": [ -113.942082430978431, 46.75549757839466 ] } }
+]
+}
