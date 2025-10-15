@@ -1,5 +1,5 @@
 ## Project Overview
-This project contains workflows and spatial datafor surveying regions in Miller Creek, Montana, focused on capturing tree images before collaring and subsequent death. 
+This project contains workflows and spatial data for surveying regions in Miller Creek, Montana, focused on capturing tree images before collaring and subsequent death.
 
 ## Action items
 - Get Beau's areas of interest, do they align with Mary-Ellyn's AOI
