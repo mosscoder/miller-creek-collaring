@@ -17,6 +17,7 @@ This project contains workflows and spatial data for surveying regions in Miller
 ## Flight Specs:
 - AGL: 50m
 - Sensor: RGB + MS
+- Shutter speed: 1/1000s
 - Lap: 80/70
 - Flight Speed: Auto
 - Terrain following: Enabled
