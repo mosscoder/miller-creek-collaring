@@ -108,13 +108,9 @@ job, which runs every 15 minutes in Cloud Run and drives everything from there: 
 to fetch the uploads, follows the two maps through processing, requests the exports, lands them in the
 bucket, and finally runs the registration on the GPU job. You can close the laptop after `submit`.
 
-One step needs a person. Ground control makes DroneDeploy tag the targets in the images and then wait
-for someone to review the tags: open the visible plan in the DroneDeploy app, check the tags, decide
-which points constrain the map (GCP) and which only measure it (checkpoint), and press Continue to
-Processing. That split is a per-project decision, not a rule. For this collaring flight the frames carry
-RTK positions, so **every point becomes a checkpoint**: the map is positioned by RTK and the points
-report its accuracy in the DroneDeploy map report. `aerial status` says `gcp=pending` while it waits and
-flags the map after two hours. The multispectral map has no ground control and processes on its own.
+One step needs a person. When the visible plan reaches its tag review in the DroneDeploy app, check the
+tags, mark every point as a checkpoint, and press Continue to Processing. `aerial status` says
+`gcp=pending` while it waits and flags the map after two hours.
 
 ## 5. Read the result
 
