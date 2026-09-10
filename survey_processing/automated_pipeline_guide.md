@@ -50,27 +50,29 @@ Save it as `survey_config.toml` in this folder. One line per decision; the comme
 
 ```toml
 [survey]
-id            = "..."                    # a unique name for this survey; labels the run records and the log lines
-root          = "gs://..."               # bucket prefix holding the raw flight; read only
-raw           = "..."                    # folder under root that holds the DJI flight folders (e.g. "data_collection/DCIM")
-stem          = "..."                    # name of everything the map produces; may use placeholders from the map block,
-                                         #   e.g. "miller_collaring-{yymmdd}" when the map has a date
-outputs       = "gs://..."               # where products and records land (and the working copy of this file)
-multispectral = true                     # build the four-band multispectral map from the DJI-calibrated frames
-visible       = true                     # build the RGB orthomosaic and the point cloud
+id            = "some_project_260101"                 # a unique name for this survey; labels the run records and the log lines
+root          = "gs://bucket/surveys/some_project/some_flight"   # bucket prefix holding the raw flight; read only
+raw           = "path/under/root/to/DCIM"             # folder under root that holds the DJI flight folders
+stem          = "some_project-{yymmdd}"               # name of everything the map produces; {yymmdd} and {date} come from
+                                                      #   the map's date, any other {key} from the map block
+outputs       = "gs://bucket/surveys/some_project/some_flight/processing/drone_deploy"   # where products and records land
+multispectral = true                                  # build the four-band multispectral map from the DJI-calibrated frames
+visible       = true                                  # build the RGB orthomosaic and the point cloud
 
 [dronedeploy]
-path = "..."                             # folders / project in DroneDeploy, e.g. "Side Projects / Miller Creek";
-                                         #   the plans are named <stem>-visible and <stem>-multispectral
+path = "Some Folder / Some Subfolder / Project Name"  # folders / project in DroneDeploy, created if missing;
+                                                      #   the plans are named <stem>-visible and <stem>-multispectral
 
 [visible]
-gcps = "..."                             # the GCP CSV, relative to root; sent with the visible upload only
-                                         #   (DroneDeploy refuses ground control on multispectral uploads)
+gcps = "path/under/root/to/gcps-dronedeploy.csv"      # the GCP CSV, relative to root; sent with the visible upload only
+                                                      #   (DroneDeploy refuses ground control on multispectral uploads)
 
-[maps.<id>]                              # one block per map; the id is what you use on the command line (aerial submit --map <id>)
-date           = "YYYY-MM-DD"            # the flight date; fills {yymmdd} / {date} in the templates above
-flight_folders = ["...", "..."]          # the DJI flight folders under raw that make up this map, in order
-notes          = "..."                   # anything the next person should know (optional)
+[maps.flight1]                                        # one block per map; the id is what you use on the command line
+                                                      #   (aerial submit --map flight1)
+date           = "2026-01-01"                         # the flight date; fills {yymmdd} / {date} above
+flight_folders = ["DJI_202601011000_001_mission",     # the DJI flight folders under raw that make up this map, in order;
+                  "DJI_202601011030_002_mission"]     #   several when the mission spanned batteries
+notes          = "what the next person should know"   # optional
 ```
 
 Everything else (frame patterns, export layers, projection, the calibration rule) is the module's default.
