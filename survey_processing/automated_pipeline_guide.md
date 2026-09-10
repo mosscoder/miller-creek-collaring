@@ -49,10 +49,14 @@ its date. Before writing anything, work out:
 
   ```
   GCP Label,Latitude,Longitude,Elevation (m)
-  SE,46.67531526,-114.00414073,1199.819
+  1_checkpoint,46.67531526,-114.00414073,1199.819
   ```
 
-  The Emlid export is a different, much wider table, so it has to be reshaped to those four columns.
+  Every point on this flight is a checkpoint, and DroneDeploy decides that from the label: a label
+  containing the word `checkpoint` (lowercase, e.g. `1_checkpoint`, `middle_checkpoint`,
+  `north_checkpoint`) is a checkpoint; anything without it is treated as a ground control point that
+  bends the map. So put `checkpoint` in every label. The Emlid export is a different, much wider table,
+  so it has to be reshaped to those four columns.
   The file then has to be **in the bucket, under `root`**, not on your laptop: the module hands
   DroneDeploy a link to it, so upload the CSV (Cloud Console or `gsutil cp`) and give the config its
   path relative to `root`
@@ -113,8 +117,8 @@ to fetch the uploads, follows the two maps through processing, requests the expo
 bucket, and finally runs the registration on the GPU job. You can close the laptop after `submit`.
 
 One step needs a person. When the visible plan reaches its tag review in the DroneDeploy app, check the
-tags, mark every point as a checkpoint, and press Continue to Processing. `aerial status` says
-`gcp=pending` while it waits and flags the map after two hours.
+tags, confirm every point shows as a checkpoint (the labels above make it so), and press Continue to
+Processing. `aerial status` says `gcp=pending` while it waits and flags the map after two hours.
 
 ## 5. Read the result
 
