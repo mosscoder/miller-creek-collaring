@@ -12,17 +12,23 @@ about the flight. The preflight command tells you what is wrong until it is righ
 
 ## 1. Set up once
 
-**Your own key.** The pipeline's jobs in Cloud Run all run as the project's default compute service
-account, and the laptop side runs as that same account through a key file. Mint your own key on it
-rather than copying someone else's: same identity and permissions, but yours to revoke, and the audit
-log can tell whose laptop a run came from. In the console: IAM & Admin → Service Accounts →
-`251613763089-compute@developer.gserviceaccount.com` → Keys → Add key → Create new key → JSON. Or:
+**Your own key.** Everything the pipeline does in the cloud runs as one identity: the project's default
+compute service account, the one Google creates for every project that uses Compute Engine. The laptop
+side runs as that same account through a key file. Mint your own key on it rather than copying someone
+else's: same identity and permissions, but yours to revoke, and the audit log can tell whose laptop a
+run came from.
+
+Find the account by asking the poll job which identity it runs as, then create a key on it. With `gcloud`
+logged in as yourself and the aerial survey project selected:
 
 ```bash
-gcloud iam service-accounts keys create ~/.keys/aerial-compute-sa.json \
-    --iam-account 251613763089-compute@developer.gserviceaccount.com \
-    --project mpg-aerial-survey-375719
+gcloud run jobs describe aerial-poll --region us-west1 \
+    --format "value(spec.template.spec.template.spec.serviceAccountName)"   # prints the account: <number>-compute@developer.gserviceaccount.com
+gcloud iam service-accounts keys create ~/.keys/aerial-sa.json --iam-account <the account printed above>
 ```
+
+In the console the same account is the row named "Compute Engine default service account" under
+IAM & Admin → Service Accounts; Keys → Add key → Create new key → JSON does the second step.
 
 Keep the file outside any repo. That is the path the `.env` below points at.
 
