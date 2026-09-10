@@ -37,9 +37,10 @@ its date. Before writing anything, work out:
 - which DJI flight folders make up the mission, and which folders under `DCIM` are not part of it
   (test captures, panel shots). `aerial discover --raw gs://…/DCIM` drafts map blocks from a bucket
   listing and counts the frames in each folder, which helps here
-- where the ground control for this flight is, and what it needs to become: DroneDeploy takes ground
-  control as a CSV with the header `Label,Latitude,Longitude,Elevation` in WGS84, and the module reads
-  it from a path inside the bucket that the config names
+- where the ground control for this flight is, and what it needs to become. DroneDeploy takes ground
+  control as a CSV with the header `Label,Latitude,Longitude,Elevation` in WGS84. The file has to be
+  **in the bucket, under `root`**, not on your laptop: the module hands DroneDeploy a link to it, so
+  upload the CSV (Cloud Console or `gsutil cp`) and give the config its path relative to `root`
 - where in DroneDeploy the maps should go: folders and a project, written as a path with ` / ` between
   the levels; the module creates what is missing
 - where the products should land in the bucket
@@ -64,8 +65,10 @@ path = "Some Folder / Some Subfolder / Project Name"  # folders / project in Dro
                                                       #   the plans are named <stem>-visible and <stem>-multispectral
 
 [visible]
-gcps = "path/under/root/to/gcps-dronedeploy.csv"      # the GCP CSV, relative to root; sent with the visible upload only
-                                                      #   (DroneDeploy refuses ground control on multispectral uploads)
+gcps = "path/under/root/to/gcps-dronedeploy.csv"      # the GCP CSV IN THE BUCKET, written relative to root (so this one is
+                                                      #   gs://bucket/surveys/some_project/some_flight/path/under/root/to/gcps-dronedeploy.csv);
+                                                      #   upload it there first. Sent with the visible upload only: DroneDeploy
+                                                      #   refuses ground control on multispectral uploads
 
 [maps.flight1]                                        # one block per map; the id is what you use on the command line
                                                       #   (aerial submit --map flight1)
