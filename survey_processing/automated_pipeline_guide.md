@@ -20,7 +20,7 @@ tell whose laptop a run came from. Keep the file outside any repo; its path goes
 Python 3.10 or newer, in whatever environment you like:
 
 ```bash
-pip install "git+ssh://git@github.com/mosscoder/mpg-aerial-pipeline@v0.5.1"
+pip install "git+ssh://git@github.com/mosscoder/mpg-aerial-pipeline"
 ```
 
 The repo is private, so the install goes over SSH with your GitHub key; the `https` form fails.
