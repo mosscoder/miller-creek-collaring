@@ -15,8 +15,10 @@ about the flight. The preflight command tells you what is wrong until it is righ
 Python 3.10 or newer, in whatever environment you like:
 
 ```bash
-pip install git+https://github.com/mosscoder/mpg-aerial-pipeline@v0.4.0
+pip install "git+ssh://git@github.com/mosscoder/mpg-aerial-pipeline@v0.4.3"
 ```
+
+The repo is private, so the install goes over SSH with your GitHub key; the `https` form fails.
 
 Then, in this folder (`survey_processing/`), a `.env` file with two lines. Both keys stay on your machine;
 the file is gitignored.
@@ -38,9 +40,17 @@ its date. Before writing anything, work out:
   (test captures, panel shots). `aerial discover --raw gs://…/DCIM` drafts map blocks from a bucket
   listing and counts the frames in each folder, which helps here
 - where the ground control for this flight is, and what it needs to become. DroneDeploy takes ground
-  control as a CSV with the header `Label,Latitude,Longitude,Elevation` in WGS84. The file has to be
-  **in the bucket, under `root`**, not on your laptop: the module hands DroneDeploy a link to it, so
-  upload the CSV (Cloud Console or `gsutil cp`) and give the config its path relative to `root`
+  control as a CSV with exactly this header, latitude and longitude in WGS84 degrees, elevation in metres:
+
+  ```
+  GCP Label,Latitude,Longitude,Elevation (m)
+  SE,46.67531526,-114.00414073,1199.819
+  ```
+
+  The Emlid export is a different, much wider table, so it has to be reshaped to those four columns.
+  The file then has to be **in the bucket, under `root`**, not on your laptop: the module hands
+  DroneDeploy a link to it, so upload the CSV (Cloud Console or `gsutil cp`) and give the config its
+  path relative to `root`
 - where in DroneDeploy the maps should go: folders and a project, written as a path with ` / ` between
   the levels; the module creates what is missing
 - where the products should land in the bucket
