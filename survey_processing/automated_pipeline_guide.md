@@ -90,34 +90,16 @@ Everything else (frame patterns, export layers, projection, the calibration rule
 
 ## 4. Ground control
 
-**The file.** DroneDeploy takes ground control as a CSV with exactly this header, latitude and longitude
-in WGS84 degrees, elevation in metres:
+We treat every point on this flight as a checkpoint: the frames carry RTK positions, so the points measure
+the map rather than bend it. DroneDeploy reads the CSV below (WGS84 degrees, metres) and takes any label
+containing the word `checkpoint`, lowercase, as a checkpoint; a label without it would act as a ground
+control point. Upload the file into the bucket under `root` and name it in `[visible] gcps`.
 
 ```
 GCP Label,Latitude,Longitude,Elevation (m)
 1_checkpoint,46.67531526,-114.00414073,1199.819
+2_checkpoint,46.67612044,-114.00302918,1201.455
 ```
-
-The Emlid export is a different, much wider table, so it has to be reshaped to those four columns.
-
-**Checkpoints, not control points.** Every point on this flight is a checkpoint: the frames carry RTK
-positions, so the points measure the map's accuracy rather than bend it. DroneDeploy decides which is
-which from the label. A label containing the word `checkpoint` (lowercase, e.g. `1_checkpoint`,
-`middle_checkpoint`, `north_checkpoint`) is a checkpoint; anything without it is treated as a ground
-control point that bends the map. So put `checkpoint` in every label.
-
-**Where it goes.** In the bucket, under `root`, not on your laptop: the module hands DroneDeploy a link
-to it. Upload the CSV (Cloud Console or `gsutil cp`) and give the config its path relative to `root` in
-`[visible] gcps`. The preflight checks that the file is reachable before anything is created.
-
-**Which map gets it.** The visible map only. DroneDeploy refuses ground control on multispectral
-uploads, so the multispectral map processes without it and is registered afterwards (section 3, `anchor`).
-
-**What happens in DroneDeploy.** Ground control makes DroneDeploy tag the targets in the images and then
-wait for a person to review the tags. When the visible plan reaches that point, open it in the
-DroneDeploy app, check the tags, confirm every point shows as a checkpoint, and press Continue to
-Processing. `aerial status` says `gcp=pending` while it waits and flags the map after two hours. The
-residual at each point appears in DroneDeploy's map report afterwards.
 
 ## 5. Run it
 
@@ -132,7 +114,9 @@ job, which runs every 15 minutes in Cloud Run and drives everything from there: 
 to fetch the uploads, follows the two maps through processing, requests the exports, lands them in the
 bucket, and finally runs the registration on the GPU job. You can close the laptop after `submit`.
 
-One step needs a person: the tag review of the visible map in the DroneDeploy app, described in section 4.
+One step needs a person. When the visible plan reaches its tag review in the DroneDeploy app, check the
+tags, confirm every point shows as a checkpoint, and press Continue to Processing. `aerial status` says
+`gcp=pending` while it waits and flags the map after two hours.
 
 ## 6. Read the result
 
