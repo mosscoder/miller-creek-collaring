@@ -1,2 +1,5 @@
 data/raster/lidar_products/*
 .DS_Store
+__pycache__/
+.env
+survey_processing/.env
