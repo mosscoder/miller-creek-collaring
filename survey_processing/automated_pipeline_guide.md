@@ -72,6 +72,10 @@ raw           = "path/under/root/to/DCIM"             # folder under root that h
 stem          = "some_project-{yymmdd}"               # name of everything the map produces; {yymmdd} and {date} come from
                                                       #   the map's date, any other {key} from the map block
 outputs       = "gs://bucket/surveys/some_project/some_flight/processing/drone_deploy"   # where products and records land
+anchor        = "gs://bucket/surveys/some_project/earlier_flight/processing/drone_deploy/earlier-visible.tif"
+                                                      # a tif in the bucket: BOTH this flight's visible and multispectral maps
+                                                      #   are registered to it once they land. Leave the line out and the
+                                                      #   multispectral map registers to this flight's own visible map instead
 multispectral = true                                  # build the four-band multispectral map from the DJI-calibrated frames
 visible       = true                                  # build the RGB orthomosaic and the point cloud
 
