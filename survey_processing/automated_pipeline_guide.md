@@ -44,22 +44,7 @@ its date. Before writing anything, work out:
 - which DJI flight folders make up the mission, and which folders under `DCIM` are not part of it
   (test captures, panel shots). `aerial discover --raw gs://…/DCIM` drafts map blocks from a bucket
   listing and counts the frames in each folder, which helps here
-- where the ground control for this flight is, and what it needs to become. DroneDeploy takes ground
-  control as a CSV with exactly this header, latitude and longitude in WGS84 degrees, elevation in metres:
-
-  ```
-  GCP Label,Latitude,Longitude,Elevation (m)
-  1_checkpoint,46.67531526,-114.00414073,1199.819
-  ```
-
-  Every point on this flight is a checkpoint, and DroneDeploy decides that from the label: a label
-  containing the word `checkpoint` (lowercase, e.g. `1_checkpoint`, `middle_checkpoint`,
-  `north_checkpoint`) is a checkpoint; anything without it is treated as a ground control point that
-  bends the map. So put `checkpoint` in every label. The Emlid export is a different, much wider table,
-  so it has to be reshaped to those four columns.
-  The file then has to be **in the bucket, under `root`**, not on your laptop: the module hands
-  DroneDeploy a link to it, so upload the CSV (Cloud Console or `gsutil cp`) and give the config its
-  path relative to `root`
+- where the ground control file will live in the bucket; section 4 covers the file itself
 - where in DroneDeploy the maps should go: folders and a project, written as a path with ` / ` between
   the levels; the module creates what is missing
 - where the products should land in the bucket
@@ -103,7 +88,38 @@ notes          = "what the next person should know"   # optional
 
 Everything else (frame patterns, export layers, projection, the calibration rule) is the module's default.
 
-## 4. Run it
+## 4. Ground control
+
+**The file.** DroneDeploy takes ground control as a CSV with exactly this header, latitude and longitude
+in WGS84 degrees, elevation in metres:
+
+```
+GCP Label,Latitude,Longitude,Elevation (m)
+1_checkpoint,46.67531526,-114.00414073,1199.819
+```
+
+The Emlid export is a different, much wider table, so it has to be reshaped to those four columns.
+
+**Checkpoints, not control points.** Every point on this flight is a checkpoint: the frames carry RTK
+positions, so the points measure the map's accuracy rather than bend it. DroneDeploy decides which is
+which from the label. A label containing the word `checkpoint` (lowercase, e.g. `1_checkpoint`,
+`middle_checkpoint`, `north_checkpoint`) is a checkpoint; anything without it is treated as a ground
+control point that bends the map. So put `checkpoint` in every label.
+
+**Where it goes.** In the bucket, under `root`, not on your laptop: the module hands DroneDeploy a link
+to it. Upload the CSV (Cloud Console or `gsutil cp`) and give the config its path relative to `root` in
+`[visible] gcps`. The preflight checks that the file is reachable before anything is created.
+
+**Which map gets it.** The visible map only. DroneDeploy refuses ground control on multispectral
+uploads, so the multispectral map processes without it and is registered afterwards (section 3, `anchor`).
+
+**What happens in DroneDeploy.** Ground control makes DroneDeploy tag the targets in the images and then
+wait for a person to review the tags. When the visible plan reaches that point, open it in the
+DroneDeploy app, check the tags, confirm every point shows as a checkpoint, and press Continue to
+Processing. `aerial status` says `gcp=pending` while it waits and flags the map after two hours. The
+residual at each point appears in DroneDeploy's map report afterwards.
+
+## 5. Run it
 
 ```bash
 aerial submit --dry-run     # preflight: counts the frames, resolves the DroneDeploy path, checks the GCP file; creates nothing
@@ -116,11 +132,9 @@ job, which runs every 15 minutes in Cloud Run and drives everything from there: 
 to fetch the uploads, follows the two maps through processing, requests the exports, lands them in the
 bucket, and finally runs the registration on the GPU job. You can close the laptop after `submit`.
 
-One step needs a person. When the visible plan reaches its tag review in the DroneDeploy app, check the
-tags, confirm every point shows as a checkpoint (the labels above make it so), and press Continue to
-Processing. `aerial status` says `gcp=pending` while it waits and flags the map after two hours.
+One step needs a person: the tag review of the visible map in the DroneDeploy app, described in section 4.
 
-## 5. Read the result
+## 6. Read the result
 
 Run `aerial status` whenever you like. A map goes `submitted` → `transferred` → `processing` →
 `processed` → `exporting` → `exported` → `done`; the multispectral line shows `steps: register` at the
