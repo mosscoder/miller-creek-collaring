@@ -55,13 +55,14 @@ Save it as `survey_config.toml` in this folder. One line per decision; the comme
 
 ```toml
 [survey]
-id            = "some_project_260101"                 # a unique name for this survey; labels the run records and the log lines
-root          = "gs://bucket/surveys/some_project/some_flight"   # bucket prefix holding the raw flight; read only
+project       = "some_project"                        # a free key; fills {project} wherever it appears below
+date          = "260101"                              # the flight date, in the form you want to see in names; fills {date}
+agl           = 50                                    # planned height above ground, metres (the mission's setting: 25, 50 or 125);
+                                                      #   the export resolution comes from it and a coarser export is refused
+root          = "gs://bucket/surveys/{project}/{date}"        # bucket prefix holding the raw flight; read only
 raw           = "path/under/root/to/DCIM"             # folder under root that holds the DJI flight folders
-stem          = "some_project-{yymmdd}"               # name of everything the map produces; {yymmdd} and {date} come from
-                                                      #   the map's date, any other {key} from the map block
-outputs       = "gs://bucket/surveys/some_project/some_flight/processing/drone_deploy"   # where products and records land
-anchor        = "gs://bucket/surveys/some_project/earlier_flight/processing/drone_deploy/earlier-visible.tif"
+outputs       = "{root}/processing/drone_deploy"      # where products and records land
+anchor        = "gs://bucket/surveys/{project}/earlier_flight/processing/drone_deploy/earlier-visible.tif"
                                                       # a tif in the bucket: BOTH this flight's visible and multispectral maps
                                                       #   are registered to it once they land. Leave the line out and the
                                                       #   multispectral map registers to this flight's own visible map instead
@@ -69,24 +70,26 @@ multispectral = true                                  # build the four-band mult
 visible       = true                                  # build the RGB orthomosaic and the point cloud
 
 [dronedeploy]
-path = "Some Folder / Some Subfolder / Project Name"  # folders / project in DroneDeploy, created if missing;
-                                                      #   the plans are named <stem>-visible and <stem>-multispectral
+path   = "Some Folder / Some Subfolder / Project Name"  # folders / project in DroneDeploy, created if missing; the plans are
+                                                        #   named <project>_<date>-visible and <project>_<date>-multispectral
+emails = ["you@mpgranch.com"]                           # optional: DroneDeploy emails these the link when an export finishes
 
 [visible]
 gcps = "path/under/root/to/gcps-dronedeploy.csv"      # the GCP CSV IN THE BUCKET, written relative to root (so this one is
-                                                      #   gs://bucket/surveys/some_project/some_flight/path/under/root/to/gcps-dronedeploy.csv);
+                                                      #   gs://bucket/surveys/some_project/260101/path/under/root/to/gcps-dronedeploy.csv);
                                                       #   upload it there first. Sent with the visible upload only: DroneDeploy
                                                       #   refuses ground control on multispectral uploads
 
 [maps.flight1]                                        # one block per map; the id is what you use on the command line
                                                       #   (aerial submit --map flight1)
-date           = "2026-01-01"                         # the flight date; fills {yymmdd} / {date} above
 flight_folders = ["DJI_202601011000_001_mission",     # the DJI flight folders under raw that make up this map, in order;
                   "DJI_202601011030_002_mission"]     #   several when the mission spanned batteries
 notes          = "what the next person should know"   # optional
 ```
 
-Everything else (frame patterns, export layers, projection, the calibration rule) is the module's default.
+Everything the map produces is named `<project>_<date>`; write an `id` line under `[survey]` to name it otherwise.
+Everything else (the aircraft profile, frame patterns, export layers, projection, the calibration rule) is the
+module's default.
 
 ## 4. Ground control
 
@@ -104,7 +107,8 @@ GCP Label,Latitude,Longitude,Elevation (m)
 ## 5. Run it
 
 ```bash
-aerial submit --dry-run     # preflight: counts the frames, resolves the DroneDeploy path, checks the GCP file; creates nothing
+aerial submit --dry-run     # preflight: counts the frames, resolves the DroneDeploy path, reads the GCP file and shows how
+                            #   DroneDeploy will treat each point (a bad header or row is refused); creates nothing
 aerial submit               # builds both uploads in the cloud, creates the two plans, posts the transfers
 aerial status               # one line per map and data type, from the run records in the bucket
 ```
@@ -121,16 +125,16 @@ tags, confirm every point shows as a checkpoint, and press Continue to Processin
 ## 6. Read the result
 
 Run `aerial status` whenever you like. A map goes `submitted` → `transferred` → `processing` →
-`processed` → `exporting` → `exported` → `done`; the multispectral line shows `steps: register` at the
+`processed` → `exporting` → `exported` → `done`; with an anchor, both lines show `steps: register` at the
 end. Under `outputs` you will find:
 
 ```
-<stem>-visible.tif               RGBA orthomosaic, GCP-rectified, EPSG 6514
-<stem>-pointcloud.las
-<stem>-multispectral.tif         Red, Green, NIR, RedEdge + alpha, registered to the visible map
-<stem>-*.manifest.json           every frame uploaded, md5s, the calibration terms
-<stem>-*.run.json                the state of each map, step by step
-registration_results/<stem>/     quality.tif, qa.json, quicklook.png, report.html
+<name>-visible.tif               RGBA orthomosaic at the camera's GSD for the flight height, EPSG 6514
+<name>-pointcloud.las
+<name>-multispectral.tif         Red, Green, NIR, RedEdge + alpha, registered to the anchor
+<name>-*.manifest.json           every frame uploaded, md5s, the calibration terms
+<name>-*.run.json                the state of each map, step by step, and the export resolution asked for and delivered
+registration_results/<name>-<type>/   quality.tif, qa.json, quicklook.png, report.html
 survey_config.toml               the working copy of your file
 ```
 
