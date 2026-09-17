@@ -112,6 +112,7 @@ aerial submit --dry-run     # preflight: counts the frames, resolves the DroneDe
 aerial submit               # builds both uploads in the cloud, creates the two plans, posts the transfers
 aerial status               # one line per map and data type, from the run records in the bucket
 aerial board --open         # the survey board: the same records as one page in the browser, rewritten every 15 minutes
+aerial refetch --map <id>   # fetch a landed product again under the current config: downloads the matching DroneDeploy export, renders only if none; re-registers
 ```
 
 Iterate on the dry run until it is clean. `submit` then adds this config to the watch list of the poll
