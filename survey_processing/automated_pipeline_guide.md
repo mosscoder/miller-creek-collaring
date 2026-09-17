@@ -111,12 +111,12 @@ aerial submit --dry-run     # preflight: counts the frames, resolves the DroneDe
                             #   DroneDeploy will treat each point (a bad header or row is refused); creates nothing
 aerial submit               # builds both uploads in the cloud, creates the two plans, posts the transfers
 aerial status               # one line per map and data type, from the run records in the bucket
-aerial board --open         # the survey board: the same records as one page in the browser, rewritten every 15 minutes
+aerial board --open         # the survey board: the same records as one page in the browser, rewritten every 5 minutes
 aerial refetch --map <id>   # fetch a landed product again under the current config: downloads the matching DroneDeploy export, renders only if none; re-registers
 ```
 
 Iterate on the dry run until it is clean. `submit` then adds this config to the watch list of the poll
-job, which runs every 15 minutes in Cloud Run and drives everything from there: it waits for DroneDeploy
+job, which runs every 5 minutes in Cloud Run and drives everything from there: it waits for DroneDeploy
 to fetch the uploads, follows the two maps through processing, requests the exports, lands them in the
 bucket, and finally runs the registration on the GPU job. You can close the laptop after `submit`.
 
@@ -151,6 +151,6 @@ cost, almost all of it DroneDeploy pulling the uploads out of the bucket.
 
 - `aerial status` prints an `ATTENTION:` line under a map that needs a person, with the reason.
 - `aerial status --full` prints the whole run record, including every DroneDeploy id.
-- `aerial board --open` opens the survey board: a banner with what needs a person, a progress bar, the deliverables, and one timeline per map with the time of every step. The poller rewrites it every 15 minutes; `--refresh` rewrites it now.
+- `aerial board --open` opens the survey board: a banner with what needs a person, a progress bar, the deliverables, and one timeline per map with the time of every step. The poller rewrites it every 5 minutes; `--refresh` rewrites it now.
 - A map that says `failed` keeps whatever products it had; nothing is deleted on failure.
 - `docs/operations.md` in the module repo has the state table and the failure modes we have met.
